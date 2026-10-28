@@ -1,0 +1,439 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Pamigo: padel met je amigo's</title>
+<meta name="description" content="Leg je padelavond vast: wie met wie speelde, de setstanden, jullie competitie en de prijs. Zonder discussie achteraf.">
+<link rel="icon" type="image/png" href="assets/favicon.png">
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+<link rel="preload" href="fonts/Quicksand-700.ttf" as="font" type="font/ttf" crossorigin>
+<link rel="stylesheet" href="scrollcraft.css">
+<style>
+  @font-face { font-family: "Quicksand"; src: url(fonts/Quicksand-700.ttf) format("truetype"); font-weight: 700; font-display: swap; }
+  @font-face { font-family: "Nunito"; src: url(fonts/Nunito-400.ttf) format("truetype"); font-weight: 400; font-display: swap; }
+  @font-face { font-family: "Nunito"; src: url(fonts/Nunito-700.ttf) format("truetype"); font-weight: 700; font-display: swap; }
+
+  /* The app's Kop vorm style: a navy head with the white logo, a light page, white cards.
+     Cards that ask for action are soft squircles, the rest are tighter. */
+  :root {
+    --navy:          #0B2A4F;
+    --sc-canvas:     #F6F7F9;
+    --sc-surface:    #FFFFFF;
+    --sc-ink:        var(--navy);
+    --sc-ink-soft:   #5A6F88;
+    --sc-accent:     #5DD891;
+    --sc-accent-ink: var(--navy);
+    --accent-text:   #1E8A4E;   /* the green, darkened until it reads on white */
+    --sc-font-display: "Quicksand", system-ui, sans-serif;
+    --sc-font-text:    "Nunito", system-ui, sans-serif;
+    --sc-shadow-color: 213 75% 12%;
+    --line: rgb(11 42 79 / .08);
+    --lw: 1px;
+    --r-card: 8px;
+    --r-action: 26px;
+    --evening: var(--navy);   /* left half: the evening, the dark head */
+    --app: #F6F7F9;           /* right half: Pamigo, the light page */
+    --ball: 22px;
+  }
+  body { background: var(--app); }
+  .half--evening, .mat__photo, .close__evening, .board__side--evening {
+    --sc-ink: #FFFFFF; --sc-ink-soft: #B9C7DA; --sc-canvas: var(--navy); --line: rgb(255 255 255 / .14); color: #fff;
+  }
+  .sc-display { font-weight: 700; letter-spacing: -.01em; line-height: 1.02; }
+  .sc-body { color: var(--sc-ink-soft); }
+  a { color: inherit; text-underline-offset: .2em; }
+  :focus-visible { outline: 3px solid var(--sc-accent); outline-offset: 4px; }
+
+  /* ---------- the court: every section is two halves ---------- */
+  .half { position: relative; min-width: 0; }
+  .half--evening { background: var(--evening); }
+  .half--app { background: var(--app); }
+  .court { display: grid; grid-template-columns: 1fr 1fr; }
+  .court > .half { padding: clamp(5rem, 10vh, 8rem) clamp(1.5rem, 4.5vw, 5rem); }
+  .court + .court { border-top: var(--lw) solid var(--line); }
+
+  /* ---------- the net: the only chrome ---------- */
+  .net { position: fixed; inset: 0 auto 0 50%; width: var(--lw); margin-left: calc(var(--lw) / -2);
+         background: var(--sc-accent); z-index: var(--sc-z-chrome); pointer-events: none; will-change: transform; }
+  .net { width: 3px; margin-left: -1.5px; }
+  .board { position: fixed; top: 0; left: 50%; z-index: calc(var(--sc-z-chrome) + 1); translate: -50% 0;
+           display: grid; grid-template-columns: auto auto; align-items: center; pointer-events: none;
+           will-change: transform; }
+  .board__side { display: flex; align-items: baseline; gap: .6rem; padding: .7rem 1.1rem .8rem; background: var(--evening); }
+  .board__side--evening { border-radius: 0 0 0 var(--r-action); }
+  .board__side--app { background: var(--sc-surface); flex-direction: row-reverse; border-radius: 0 0 var(--r-action) 0; box-shadow: var(--sc-e1); }
+  .board__side--evening { justify-content: flex-end; }
+  .board__label { font-size: var(--sc-t-xs); color: var(--sc-ink-soft); font-weight: 700; }
+  .board__n { font-family: var(--sc-font-display); font-weight: 700; font-size: 2.3rem; line-height: .9; min-width: 1ch; text-align: center; font-variant-numeric: tabular-nums; }
+  .board__n.is-up { color: var(--sc-accent); }
+  .board__side--app .board__n.is-up { color: var(--accent-text); }
+
+  .ball { position: fixed; left: 0; top: 0; width: var(--ball); height: var(--ball); border-radius: 50%;
+          background: var(--sc-accent); z-index: calc(var(--sc-z-chrome) + 2); pointer-events: none;
+          box-shadow: 0 6px 10px -2px hsl(var(--sc-shadow-color) / .45); will-change: transform; }
+  .ball::after { content: ""; position: absolute; inset: 3px; border-radius: 50%;
+                 border: 2px solid transparent; border-left-color: rgba(255,255,255,.8); border-right-color: rgba(255,255,255,.8); }
+
+  .mark { position: absolute; top: 1.3rem; left: clamp(1.5rem, 4.5vw, 5rem); z-index: 5; line-height: 0; }
+  .mark img { height: 2.4rem; width: auto; }
+
+  /* ---------- the phone ---------- */
+  .phone { width: min(19rem, 78%); aspect-ratio: 390 / 844; border-radius: 2.6rem; overflow: hidden;
+           border: .55rem solid #071C36; background: #071C36; box-shadow: var(--sc-e3); }
+  .phone img { width: 100%; height: 100%; object-fit: cover; }
+  .phone--sm { width: 100%; border-radius: 1.4rem; border-width: .32rem; }
+  .stack-center { display: grid; place-items: center; height: 100%; }
+
+  /* ---------- 1 hero ---------- */
+  .hero { min-height: 100svh; }
+  .hero > .half { padding-top: clamp(6.5rem, 14vh, 9rem); display: flex; flex-direction: column; justify-content: flex-end; }
+  .hero h1 { font-size: clamp(3rem, 1.6rem + 4.6vw, 6rem); max-width: 10ch; margin: 0; }
+  .hero__lede { margin-top: var(--sc-5); max-width: 28ch; font-size: var(--sc-t-lg); }
+  .hero__app { overflow: hidden; justify-content: center !important; align-items: center; }
+  .hero__plate { position: absolute; inset: -8% 0; background: url(assets/share-indoor.jpg) center 62% / cover; opacity: .55; }
+  .hero__app::before { content: ""; position: absolute; inset: 0; z-index: 1; background: linear-gradient(180deg, transparent 55%, var(--app) 100%); }
+  .hero__phone { position: relative; z-index: 2; }
+  .hero__app h2 { position: relative; z-index: 3; margin: var(--sc-6) 0 0; font-size: var(--sc-t-2xl); text-align: center; }
+  .hero .cta { margin-top: var(--sc-6); }
+
+  .cta { display: inline-flex; align-items: center; gap: .7rem; min-height: 3.4rem; padding: 0 1.7rem; border-radius: var(--r-action);
+         background: #fff; color: var(--navy); font-family: var(--sc-font-display); font-weight: 700; font-size: 1.15rem; text-decoration: none;
+         transition: transform var(--sc-d-fast) var(--sc-ease-out), background-color var(--sc-d-fast) var(--sc-ease-out); align-self: flex-start; }
+  .cta::before { content: ""; width: .8rem; height: .8rem; border-radius: 50%; background: var(--sc-accent); }
+  .close .cta { background: var(--navy); color: #fff; box-shadow: var(--sc-e2); }
+  @media (hover: hover) and (pointer: fine) { .cta:hover { background: var(--sc-accent); } }
+  .cta:active { transform: translateY(1px) scale(.98); }
+
+  /* ---------- 2 the beer mat (pin) ---------- */
+  .mat [data-sc-stage] { display: grid; grid-template-columns: 1fr 1fr; height: 100svh; }
+  .mat .half { display: grid; align-items: center; padding: 0 clamp(1.5rem, 4.5vw, 5rem); }
+  .mat__lines { display: grid; }
+  .mat__lines > p { grid-area: 1 / 1; margin: 0; font-family: var(--sc-font-display); font-weight: 700;
+                    font-size: clamp(2.4rem, 1.4rem + 3.2vw, 4.6rem); line-height: 1.02; max-width: 12ch; }
+  .mat__photo { background: url(assets/share-indoor.jpg) center 30% / cover; }
+  .mat__photo .sc-scrim { z-index: 1; }
+  .mat__caption { position: absolute; z-index: 2; right: clamp(1.5rem, 4.5vw, 5rem); bottom: 2.4rem; text-align: right; max-width: 22ch; }
+
+  /* ---------- 3 entering a set (reveal) ---------- */
+  .copy-block h2 { font-size: var(--sc-t-3xl); margin: 0 0 var(--sc-5); max-width: 10ch; }
+  .copy-block p + p { margin-top: var(--sc-4); }
+  .facts { list-style: none; margin: var(--sc-6) 0 0; padding: 0; max-width: 34ch; }
+  .facts li { padding: .9rem 0; border-top: 1px solid var(--line); font-weight: 700; }
+  .facts li span { display: block; font-weight: 400; color: var(--sc-ink-soft); }
+  .enter .half--evening { display: flex; flex-direction: column; justify-content: flex-start; }
+
+  /* ---------- 4 fair play (flow + in) ---------- */
+  .fair .half--evening { display: flex; flex-direction: column; justify-content: flex-end; }
+  .fair .half--app { display: grid; place-items: start center; }
+  .approve { margin-top: var(--sc-6); max-width: 30ch; padding: .6rem 1.4rem; border-radius: var(--r-action);
+             background: #fff; color: var(--navy); box-shadow: var(--sc-e2); }
+  .approve__row { display: flex; justify-content: space-between; padding: .6rem 0; }
+  .approve__row + .approve__row { border-top: 1px solid rgb(11 42 79 / .08); }
+  .approve__row b { color: #5A6F88; }
+  .approve__row b.ok { color: var(--accent-text); }
+
+  /* ---------- 5 the prize (parallax) ---------- */
+  .prize { overflow: hidden; }
+  .prize .half--app { overflow: hidden; min-height: 112svh; }
+  .prize__plate { position: absolute; inset: -14% -4%; background: url(assets/share-outdoor.jpg) center / cover; }
+  .prize__phone { position: relative; z-index: 2; margin: 4rem auto 0; }
+  .prize__loose { position: absolute; z-index: 3; width: 4.6rem; height: 4.6rem; border-radius: 50%; background: var(--sc-accent);
+                  right: 14%; bottom: 18%; box-shadow: 0 18px 30px -10px hsl(var(--sc-shadow-color) / .6); }
+  .prize h2 { font-size: var(--sc-t-3xl); margin: 0 0 var(--sc-5); max-width: 9ch; }
+  .prize__what { font-family: var(--sc-font-display); font-weight: 700; font-size: clamp(2.2rem, 1.3rem + 2.6vw, 3.8rem); line-height: 1.02; color: var(--sc-accent); margin: var(--sc-6) 0 var(--sc-2); }
+  .prize .half--evening { display: flex; flex-direction: column; justify-content: center; }
+
+  /* ---------- 6 share and themes (reveal) ---------- */
+  .share .half--app { display: flex; flex-direction: column; align-items: center; gap: var(--sc-6); }
+  .themes { display: grid; grid-template-columns: repeat(5, 1fr); gap: .8rem; width: 100%; max-width: 34rem; }
+  .themes figure { margin: 0; }
+  .themes figcaption { margin-top: .5rem; font-size: var(--sc-t-xs); font-weight: 700; text-align: center; color: var(--sc-ink-soft); }
+  .themes figure:first-child figcaption { color: var(--sc-ink); }
+  .share .half--evening { display: flex; flex-direction: column; justify-content: space-between; gap: var(--sc-7); }
+
+  /* ---------- 7 match point (pin, the collapse) ---------- */
+  .close [data-sc-stage] { height: 100svh; overflow: hidden; background: var(--app); }
+  .close__app { position: absolute; inset: 0; display: grid; place-items: center; padding: 0 var(--sc-gutter); }
+  .close__inner { width: min(36rem, 100%); transform: translateX(calc(25vw * (1 - var(--c, 0)))); }
+  .close__inner h2 { font-size: clamp(3rem, 1.8rem + 4.4vw, 6rem); margin: 0 0 var(--sc-5); }
+  .close__evening { position: absolute; inset: 0 50% 0 0; background: var(--evening); display: grid; align-items: center;
+                    padding: 0 clamp(1.5rem, 4.5vw, 5rem); transform: translateX(calc(-100% * var(--c, 0))); }
+  .close__evening p { font-family: var(--sc-font-display); font-weight: 700; font-size: clamp(2.2rem, 1.3rem + 3vw, 4.4rem); line-height: 1.02; max-width: 9ch; margin: 0; }
+  .foot { position: absolute; left: 0; right: 0; bottom: 0; display: flex; justify-content: space-between; gap: 1rem;
+          padding: 1rem var(--sc-gutter) calc(1rem + env(safe-area-inset-bottom)); font-size: var(--sc-t-xs); color: var(--sc-ink-soft); border-top: 1px solid var(--line); }
+
+  /* ---------- phone: the court is seen lengthways, the net runs across the top ---------- */
+  @media (max-width: 760px) {
+    .court, .mat [data-sc-stage] { grid-template-columns: 1fr; }
+    .court > .half { padding: 4.6rem 1.4rem 3.4rem; }
+    .court > .half + .half { border-top: var(--lw) solid var(--line); }
+    .net { display: none; }
+    .board { left: 0; right: 0; translate: none; grid-template-columns: 1fr 1fr; }
+    .board__side--evening, .board__side--app { border-radius: 0; }
+    .board__n { font-size: 2rem; }
+    .hero { min-height: 0; }
+    .hero > .half--evening { min-height: 72svh; padding-top: 9rem; }
+    .hero h1 { font-size: 3rem; }
+    .hero__app { padding-block: 3rem 4rem !important; }
+    .mat [data-sc-stage] { grid-template-rows: 1fr .8fr; }
+    .mat .half { padding: 4.6rem 1.4rem 1.4rem; }
+    .mat__lines > p { font-size: 2.4rem; }
+    .phone { width: min(17rem, 80%); }
+    .prize .half--app { min-height: 0; padding-bottom: 5rem !important; }
+    .themes { gap: .45rem; }
+    .close__evening { inset: 0 0 50% 0; transform: translateY(calc(-100% * var(--c, 0))); }
+    .close__inner { transform: translateY(calc(22svh * (1 - var(--c, 0)))); }
+    .close__inner h2 { font-size: 2.9rem; }
+    .mark { left: 1.4rem; top: 5.4rem; }
+    .foot { flex-direction: column; gap: .2rem; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .ball { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<span data-sc-progress></span>
+
+<div class="net" aria-hidden="true"></div>
+<div class="board" role="status" aria-live="polite" aria-label="Stand">
+  <div class="board__side board__side--evening"><span class="board__label">Jullie avond</span><span class="board__n" data-score="a">0</span></div>
+  <div class="board__side board__side--app"><span class="board__label">Pamigo</span><span class="board__n" data-score="b">0</span></div>
+</div>
+<div class="ball" aria-hidden="true"></div>
+
+<main id="top">
+
+  <!-- 1 · Recognition. Split at 50/50 from the first screen. Layered app half. -->
+  <section class="court hero" data-sc-act="flow" data-game="0 0">
+    <div class="half half--evening">
+      <a class="mark" href="#top" aria-label="Pamigo, naar boven"><img src="assets/pamigo-logo-white.svg" alt="" width="147" height="48"></a>
+      <div data-sc-in data-sc-stagger="70">
+        <h1 class="sc-display">Padel met je amigo's.</h1>
+        <p class="sc-body hero__lede">Vier spelers, wisselende teams en één ranglijst waar iedereen het over eens is.</p>
+        <a class="cta" href="app/">Open Pamigo</a>
+      </div>
+    </div>
+    <div class="half half--app hero__app">
+      <div class="hero__plate" data-sc-parallax="-1.4" aria-hidden="true"></div>
+      <div class="phone hero__phone" data-sc-parallax="0.5">
+        <img src="assets/shot-home.jpg" width="1170" height="2532" alt="Pamigo Home: de ranglijst van de competitie Steensel najaar, de laatste sessie 2 tegen 1 gewonnen en de speeltijd van deze week.">
+      </div>
+      <h2 class="sc-display">Pamigo houdt de stand bij.</h2>
+    </div>
+  </section>
+
+  <!-- 2 · Frustration. Pinned, lines cross over while the photo holds. -->
+  <section class="mat" data-sc-act="pin" data-sc-span="2.3" data-game="1 0">
+    <div data-sc-stage>
+      <div class="half half--evening">
+        <div class="mat__lines">
+          <p data-sc-cue="0 0.3 0" data-sc-kinetic="lines">Was het nou 6&#8288;-&#8288;4 of 6&#8288;-&#8288;3?</p>
+          <p data-sc-cue="0.26 0.56">Wie stond er met wie?</p>
+          <p data-sc-cue="0.52 0.80">En wie trakteert er?</p>
+          <p data-sc-cue="0.74 1 0.1 0.05">Niemand weet het meer zeker.</p>
+        </div>
+      </div>
+      <div class="half mat__photo" role="img" aria-label="Een overdekte padelbaan met glazen wanden.">
+        <div class="sc-scrim sc-scrim--trail" aria-hidden="true"></div>
+        <p class="mat__caption sc-body">De uitslag staat op een bierviltje. Het bierviltje ligt nog in de kantine.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3 · Relief. The set screen wipes in. -->
+  <section class="court enter" data-sc-act="flow" data-game="1 1">
+    <div class="half half--evening copy-block">
+      <div data-sc-in data-sc-stagger="60">
+        <h2 class="sc-display">Een set in een paar tikken.</h2>
+        <p class="sc-body">Kies je drie medespelers en wie met wie speelt. Tik de games aan. Klaar.</p>
+        <ul class="facts">
+          <li>Gasten doen gewoon mee<span>Ze krijgen een code en koppelen de sessie later aan hun account.</span></li>
+          <li>Conditie erbij als je wilt<span>Calorieën, meters en hartslag, of een schatting op basis van de speelduur. Alleen jij ziet ze.</span></li>
+          <li>Hoort de avond bij een competitie<span>Dan telt hij meteen mee voor de stand.</span></li>
+        </ul>
+      </div>
+    </div>
+    <div class="half half--app stack-center">
+      <figure class="phone" data-sc-reveal="up" data-sc-reveal-at="0.12 0.5" style="margin:0">
+        <img src="assets/shot-new-session.jpg" width="1170" height="2532" loading="lazy" alt="Het scherm Nieuwe sessie: datum, duur, medespelers en de set met twee teams aan weerszijden van het net.">
+      </figure>
+    </div>
+  </section>
+
+  <!-- 4 · Trust. Plain document section, reveal on entry. -->
+  <section class="court fair" data-sc-act="flow" data-game="1 2">
+    <div class="half half--evening copy-block">
+      <div data-sc-in data-sc-stagger="60">
+        <h2 class="sc-display">Eerlijk is eerlijk.</h2>
+        <p class="sc-body">Vanaf drie sessies sta je echt in de ranglijst. Eerst telt het percentage gewonnen sets, dan het verschil in games. En je ziet met wie je het vaakst wint.</p>
+        <p class="sc-body">Een tikfout gemaakt? Stel een aanpassing voor. De uitslag verandert pas als iedereen akkoord geeft.</p>
+        <div class="approve" aria-label="Voorbeeld van een aanpassing">
+          <div class="approve__row"><span>Martin</span><b class="ok">Akkoord</b></div>
+          <div class="approve__row"><span>Jordy</span><b class="ok">Akkoord</b></div>
+          <div class="approve__row"><span>Bas</span><b>Wacht</b></div>
+        </div>
+      </div>
+    </div>
+    <div class="half half--app">
+      <div class="phone" data-sc-in>
+        <img src="assets/shot-duels.jpg" width="1170" height="2532" loading="lazy" alt="Het scherm Duels: een podium met Martin op één, Bas op twee en Kees op drie, en de volledige ranglijst.">
+      </div>
+    </div>
+  </section>
+
+  <!-- 5 · Appetite. Layers at different rates over the outdoor court. -->
+  <section class="court prize" data-sc-act="flow" data-game="2 2">
+    <div class="half half--evening">
+      <div data-sc-in data-sc-stagger="60">
+        <h2 class="sc-display">Speel ergens om.</h2>
+        <p class="sc-body">Start een competitie, deel de code of laat de QR-code scannen. Kies een einddatum en een prijs. Plak een link uit een webwinkel en Pamigo leest de naam, de prijs en de foto zelf uit.</p>
+        <p class="prize__what">Broodje bij Two B</p>
+        <p class="sc-body">De pot wordt eerlijk verdeeld, en je ziet wie al betaald heeft.</p>
+      </div>
+    </div>
+    <div class="half half--app">
+      <div class="prize__plate" data-sc-parallax="-1.6" aria-hidden="true"></div>
+      <div class="phone prize__phone" data-sc-parallax="0.9">
+        <img src="assets/shot-competition.jpg" width="1170" height="2532" loading="lazy" alt="Een competitie in Pamigo: de prijs Broodje bij Two B, de prijzenpot van 9 euro per persoon en wie al betaald heeft.">
+      </div>
+      <div class="prize__loose" data-sc-parallax="2" aria-hidden="true"></div>
+    </div>
+  </section>
+
+  <!-- 6 · Pride. The story card wipes open; five courts to choose from. -->
+  <section class="court share" data-sc-act="flow" data-game="2 3">
+    <div class="half half--evening copy-block">
+      <div data-sc-in data-sc-stagger="60">
+        <h2 class="sc-display">Laat zien hoe het ging.</h2>
+        <p class="sc-body">Na de avond maakt Pamigo een story-kaart: speeltijd, afstand, calorieën en elke set. Binnenbaan, buitenbaan of je eigen foto.</p>
+      </div>
+      <div data-sc-in>
+        <p class="sc-body">En de app past zich aan. Kies je stijl onder Profiel: Kop vorm, Kaarten, Sticker, Tegels of Avond voor op de baan onder de lampen.</p>
+      </div>
+    </div>
+    <div class="half half--app">
+      <figure class="phone" data-sc-reveal="iris" data-sc-reveal-at="0.1 0.45" style="margin:0">
+        <img src="assets/shot-share.jpg" width="1170" height="2532" loading="lazy" alt="De deelkaart: 1 uur 41 speeltijd, 4,8 kilometer, 1.032 kcal en drie sets, op een foto van een binnenbaan.">
+      </figure>
+      <div class="themes" data-sc-in data-sc-stagger="60">
+        <figure><div class="phone phone--sm"><img src="assets/shot-style-kopVorm.jpg" width="1170" height="2532" loading="lazy" alt="Stijl Kop vorm"></div><figcaption>Kop vorm</figcaption></figure>
+        <figure><div class="phone phone--sm"><img src="assets/shot-style-kaarten.jpg" width="1170" height="2532" loading="lazy" alt="Stijl Kaarten"></div><figcaption>Kaarten</figcaption></figure>
+        <figure><div class="phone phone--sm"><img src="assets/shot-style-sticker.jpg" width="1170" height="2532" loading="lazy" alt="Stijl Sticker"></div><figcaption>Sticker</figcaption></figure>
+        <figure><div class="phone phone--sm"><img src="assets/shot-style-tegels.jpg" width="1170" height="2532" loading="lazy" alt="Stijl Tegels"></div><figcaption>Tegels</figcaption></figure>
+        <figure><div class="phone phone--sm"><img src="assets/shot-style-avond.jpg" width="1170" height="2532" loading="lazy" alt="Stijl Avond"></div><figcaption>Avond</figcaption></figure>
+      </div>
+    </div>
+  </section>
+
+  <!-- 7 · Resolve, the peak. The last games fall, the net slides off, Pamigo takes the court. -->
+  <section class="close" id="open" data-sc-act="pin" data-sc-span="2.8" data-close="3 3,3 4,4 4,4 5,4 6">
+    <div data-sc-stage>
+      <div class="close__app">
+        <div class="close__inner">
+          <h2 class="sc-display" data-sc-cue="0" data-sc-kinetic="lines">Set Pamigo.</h2>
+          <p class="sc-body" data-sc-cue="0.05">Jullie spelen. Pamigo onthoudt de stand, de teams en wie er trakteert.</p>
+          <p style="margin-top: var(--sc-6)" data-sc-cue="0.05" data-sc-rise="0"><a class="cta" href="app/">Open Pamigo</a></p>
+        </div>
+      </div>
+      <div class="close__evening" aria-hidden="true"><p>Nog één game.</p></div>
+      <footer class="foot">
+        <span>Pamigo, padel with amigo's. Bedacht door Martin, gebouwd met Flutter en Firebase.</span>
+        <a href="#top">Terug naar boven</a>
+      </footer>
+    </div>
+  </section>
+
+</main>
+
+<script src="scrollcraft.js"></script>
+<script>ScrollCraft.mount(document.body);</script>
+<script>
+/* Signature move: the page is a set. Every section is a game; when you move on, the ball
+   crosses the net to whoever won it and the scoreboard on the net ticks. In the last act the
+   final games fall under your hand, then the net slides off and Pamigo's half takes the court. */
+(function () {
+  var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var ball = document.querySelector('.ball');
+  var net = document.querySelector('.net');
+  var board = document.querySelector('.board');
+  var out = { a: document.querySelector('[data-score="a"]'), b: document.querySelector('[data-score="b"]') };
+  var close = document.querySelector('[data-close]');
+  var events = [];
+
+  function parse(s) { var n = s.trim().split(/\s+/).map(Number); return { a: n[0], b: n[1] }; }
+
+  function layout() {
+    var vh = innerHeight;
+    events = [];
+    document.querySelectorAll('[data-game]').forEach(function (el, i) {
+      var top = el.getBoundingClientRect().top + scrollY;
+      events.push(Object.assign({ y: i === 0 ? -1 : top - vh * 0.55 }, parse(el.dataset.game)));
+    });
+    var ct = close.getBoundingClientRect().top + scrollY, travel = close.offsetHeight - vh;
+    close.dataset.close.split(',').forEach(function (g, i, all) {
+      events.push(Object.assign({ y: ct + travel * (0.08 + 0.62 * i / (all.length - 1)) }, parse(g)));
+    });
+    for (var k = 0; k < events.length; k++) {
+      var p = events[k - 1] || { a: 0, b: 0 };
+      events[k].side = events[k].b > p.b ? 1 : events[k].a > p.a ? 0 : (k ? events[k - 1].side : 0);
+    }
+  }
+
+  var shown = '';
+  function frame() {
+    var y = scrollY, vw = innerWidth, vh = innerHeight, phone = vw <= 760;
+    var k = 0;
+    while (k + 1 < events.length && events[k + 1].y <= y) k++;
+    var e = events[k], prev = events[k - 1] || e;
+    var t = Math.min(1, Math.max(0, (y - e.y) / (vh * (k >= events.length - 5 ? 0.22 : 0.32))));
+    if (k === 0) t = 1;
+    var s = t < 0.5 && k > 0 ? prev : e;
+    var key = s.a + ' ' + s.b;
+    if (key !== shown) {
+      out.a.classList.toggle('is-up', shown && s.a > +out.a.textContent);
+      out.b.classList.toggle('is-up', shown && s.b > +out.b.textContent);
+      out.a.textContent = s.a; out.b.textContent = s.b; shown = key;
+    }
+
+    // Close collapse: --c from 0 to 1 over the last stretch of the pinned act.
+    var ct = close.getBoundingClientRect().top + y, travel = close.offsetHeight - vh;
+    var pc = Math.min(1, Math.max(0, (y - ct) / Math.max(travel, 1)));
+    var c = reduce ? (pc > 0.75 ? 1 : 0) : Math.min(1, Math.max(0, (pc - 0.74) / 0.22));
+    c = c * c * (3 - 2 * c);
+    close.style.setProperty('--c', c.toFixed(4));
+    if (!phone) {
+      net.style.transform = 'translateX(' + (-vw * 0.5 * c).toFixed(1) + 'px)';
+      net.style.opacity = (1 - c).toFixed(3);
+      board.style.transform = 'translateX(' + (-vw * 0.5 * c).toFixed(1) + 'px) translateX(' + (50 * c).toFixed(1) + '%)';
+    } else {
+      board.style.transform = 'none';
+    }
+
+    if (!reduce) {
+      // The ball flies from the previous winner's half to this one, in an arc over the net.
+      var from = prev.side, to = e.side, ease = t * t * (3 - 2 * t);
+      var x0 = phone ? vw * (from ? 0.9 : 0.1) : vw * (from ? 0.75 : 0.25);
+      var x1 = phone ? vw * (to ? 0.9 : 0.1) : vw * (to ? 0.75 : 0.25);
+      var base = phone ? board.offsetHeight - 2 : vh * 0.86, lift = phone ? 0 : vh * 0.34;
+      var x = x0 + (x1 - x0) * ease, by = base - Math.sin(Math.PI * t) * (from === to ? lift * 0.4 : lift);
+      if (c > 0) { x = x + (vw * 0.5 - x) * c; by = by + (vh * 0.72 - by) * c; }
+      ball.style.transform = 'translate3d(' + (x - 11).toFixed(1) + 'px,' + (by - 11).toFixed(1) + 'px,0) scale(' + (1 + Math.sin(Math.PI * t) * 0.35).toFixed(3) + ')';
+      ball.style.opacity = c > 0.98 ? '0' : '1';
+    }
+  }
+
+  var queued = false;
+  function tick() { if (!queued) { queued = true; requestAnimationFrame(function () { queued = false; frame(); }); } }
+  addEventListener('scroll', tick, { passive: true });
+  addEventListener('resize', function () { layout(); tick(); });
+  document.fonts.ready.then(function () { layout(); tick(); });
+  addEventListener('load', function () { layout(); tick(); });
+  layout();
+  tick();
+})();
+</script>
+</body>
+</html>
