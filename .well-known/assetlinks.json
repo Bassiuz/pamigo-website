@@ -1,0 +1,14 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.bassiuz.pamigo",
+      "sha256_cert_fingerprints": [
+        "0E:19:43:03:C6:AC:A1:3B:F5:77:CC:11:32:29:84:BF:3B:63:C9:64:EB:5A:37:FC:49:FA:95:17:F1:23:09:23",
+        "57:18:0B:B7:D8:7A:B0:E3:6A:47:B0:99:84:A3:EE:A3:B4:63:7B:ED:F3:9A:64:93:D3:C2:45:B8:04:21:76:8D",
+        "93:9C:67:A2:CB:84:50:99:92:C7:B8:77:BF:19:A8:46:51:92:9D:71:B4:A0:11:04:EB:6B:FE:7F:2A:EB:D9:63"
+      ]
+    }
+  }
+]

@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Word tester — Pamigo</title>
+<meta name="description" content="Test Pamigo voordat de app in de winkels staat. Zo doe je mee op iPhone en Android.">
+<style>
+  @font-face { font-family: "Space Grotesk"; src: url(fonts/SpaceGrotesk-latin.woff2) format("woff2"); font-weight: 300 700; }
+  @font-face { font-family: "Inter"; src: url(fonts/Inter-latin.woff2) format("woff2"); font-weight: 100 900; }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 8vh 6vw; min-height: 100vh;
+    font: 16px/1.6 Inter, system-ui, sans-serif; color: #071C36;
+    background: linear-gradient(160deg, #E9FAF0 0%, #D4F0FE 100%) fixed;
+  }
+  main { max-width: 760px; margin: 0 auto; }
+  .card {
+    margin-bottom: 20px; padding: 32px;
+    background: rgba(255,255,255,.75); border: 1px solid #FFFFFF; border-radius: 24px;
+  }
+  h1, h2 { font-family: "Space Grotesk", system-ui, sans-serif; line-height: 1.15; margin: 0 0 12px; }
+  h1 { font-size: 40px; }
+  h2 { font-size: 22px; }
+  .lead { font-size: 18px; color: #3B5272; margin: 0; }
+  .soft { color: #5A6F88; }
+  ol, ul { padding-left: 22px; margin: 0; }
+  li { margin-bottom: 10px; }
+  .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .cols .card { margin-bottom: 0; }
+  .link {
+    display: block; margin: 8px 0 4px; padding: 10px 16px; border-radius: 99px;
+    background: #071C36; color: #FFFFFF; text-decoration: none; font-weight: 600; text-align: center;
+  }
+  a { color: #071C36; }
+  .stack > .card:last-child { margin-bottom: 0; }
+  @media (max-width: 700px) { .cols { grid-template-columns: 1fr; } .card { padding: 24px; } h1 { font-size: 32px; } }
+</style>
+</head>
+<body>
+<main>
+  <section class="card">
+    <h1>Word tester van Pamigo</h1>
+    <p class="lead">Pamigo houdt bij wie er wint in je padelgroep: matches, competities, duels en een ranglijst. Voordat de app in de App Store en Play Store staat, testen we hem met een groep vrienden. Doe je mee?</p>
+  </section>
+
+  <section class="card">
+    <h2>Wat testen betekent</h2>
+    <ul>
+      <li>Je krijgt de app nu al, voordat iedereen hem kan downloaden.</li>
+      <li>Het is een vroege versie. Er kan iets misgaan of er kan iets veranderen.</li>
+      <li>Nieuwe versies komen vanzelf, soms een paar keer per week.</li>
+      <li>Het kost niets en je zit nergens aan vast.</li>
+    </ul>
+  </section>
+
+  <div class="cols" style="margin-bottom:20px">
+    <section class="card">
+      <h2>iPhone</h2>
+      <p class="soft">iOS 15 of nieuwer.</p>
+      <ol>
+        <li>Installeer <b>TestFlight</b> uit de App Store. Die app is van Apple en gratis.</li>
+        <li>Open op je iPhone:
+          <a class="link" href="https://testflight.apple.com/join/n3ADnE9t">Doe mee via TestFlight</a></li>
+        <li>Tik op <b>Accepteer</b> en daarna op <b>Installeer</b>.</li>
+        <li>Open Pamigo en maak een account aan.</li>
+      </ol>
+      <p class="soft">Apple Watch? Installeer Pamigo in de Watch-app op je iPhone, onder <b>Beschikbare apps</b>.</p>
+    </section>
+
+    <section class="card">
+      <h2>Android</h2>
+      <p class="soft">Android 8 of nieuwer.</p>
+      <ol>
+        <li>Word lid van de testgroep, met het Google-account van je Play Store:
+          <a class="link" href="https://groups.google.com/g/pamigo-testers">Word lid van Pamigo testers</a>
+          Tik op <b>Lid worden van groep</b>. Je krijgt geen mails.</li>
+        <li>Open daarna op je telefoon:
+          <a class="link" href="https://play.google.com/apps/testing/com.bassiuz.pamigo">Word tester in Google Play</a></li>
+        <li>Tik op <b>Word tester</b> en daarna op <b>Downloaden via Google Play</b>.</li>
+        <li>Open Pamigo en maak een account aan.</li>
+      </ol>
+      <p class="soft">"App niet gevonden"? Wacht een paar minuten na het lid worden en check of je met hetzelfde Google-account bent ingelogd.</p>
+    </section>
+  </div>
+
+  <div class="stack">
+    <section class="card">
+      <h2>Wat we van je vragen</h2>
+      <ul>
+        <li>Gebruik Pamigo gewoon bij je padelavonden: leg matches vast, start een competitie, nodig je amigo's uit.</li>
+        <li>Iets raar, kapot of onduidelijk? Laat het weten. Op iPhone maak je een screenshot en tik je op <b>Deel bèta-feedback</b> in TestFlight. Op Android mail je naar <a href="mailto:b@sdevaan.nl?subject=Pamigo%20feedback">b@sdevaan.nl</a>.</li>
+        <li>Een idee of iets wat je mist? Ook welkom.</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>Stoppen</h2>
+      <p>Verwijder de app. Op Android kun je op <a href="https://play.google.com/apps/testing/com.bassiuz.pamigo">dezelfde testpagina</a> ook op <b>Test verlaten</b> tikken. Wil je dat je account ook weg is? Lees <a href="privacy.html#verwijderen">hoe je je account verwijdert</a>.</p>
+    </section>
+
+    <p class="soft" style="text-align:center">Lees ook de <a href="privacy.html">privacyverklaring</a>. Vragen? Mail Bas: <a href="mailto:b@sdevaan.nl">b@sdevaan.nl</a></p>
+  </div>
+</main>
+</body>
+</html>

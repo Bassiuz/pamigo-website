@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pamigo testen — zo installeer je de app</title>
+<!-- One A4 page for invitees. Fill in the two links below once the TestFlight public link and the Play join link exist. -->
+<style>
+  @font-face { font-family: "Space Grotesk"; src: url(fonts/SpaceGrotesk-latin.woff2) format("woff2"); font-weight: 300 700; }
+  @font-face { font-family: "Inter"; src: url(fonts/Inter-latin.woff2) format("woff2"); font-weight: 100 900; }
+  @page { size: A4; margin: 0; }
+  * { box-sizing: border-box; }
+  html { background: #E0F7EA; }
+  body {
+    margin: 0 auto; width: 210mm; min-height: 297mm; padding: 16mm 15mm;
+    font: 11pt/1.5 Inter, system-ui, sans-serif; color: #071C36;
+    background: linear-gradient(160deg, #E9FAF0 0%, #D4F0FE 100%);
+  }
+  h1, h2 { font-family: "Space Grotesk", system-ui, sans-serif; margin: 0; }
+  h1 { font-size: 26pt; line-height: 1.1; }
+  .intro { color: #5A6F88; margin: 3mm 0 9mm; max-width: 150mm; }
+  .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 7mm; }
+  .card {
+    background: rgba(255,255,255,.75); border: 1px solid #FFFFFF; border-radius: 6mm;
+    padding: 7mm; box-shadow: 0 2mm 6mm rgba(7,28,54,.06);
+  }
+  h2 { font-size: 17pt; margin-bottom: 4mm; }
+  ol { margin: 0; padding-left: 5mm; }
+  li { margin-bottom: 3mm; }
+  li::marker { font-weight: 700; }
+  .link {
+    display: block; margin: 2mm 0; padding: 2.5mm 4mm; border-radius: 99px;
+    background: #071C36; color: #FFFFFF; text-decoration: none; font-weight: 600;
+    font-size: 9.5pt; text-align: center;
+  }
+  .note { color: #5A6F88; font-size: 9.5pt; }
+  footer { margin-top: 9mm; color: #5A6F88; font-size: 9.5pt; }
+  @media (max-width: 700px) {
+    body { width: auto; min-height: 0; padding: 8vw 6vw; }
+    .cols { grid-template-columns: 1fr; }
+  }
+  @media print { html, body { background: #FFFFFF; } .card { box-shadow: none; border-color: #B9C7DA; } }
+</style>
+</head>
+<body>
+  <h1>Pamigo testen</h1>
+  <p class="intro">Je bent uitgenodigd om Pamigo te testen voordat de app in de winkels staat. Kies je telefoon en volg de stappen. Duurt een paar minuten.</p>
+
+  <div class="cols">
+    <section class="card">
+      <h2>iPhone</h2>
+      <ol>
+        <li>Installeer de app <b>TestFlight</b> uit de App Store. Die is van Apple en gratis.</li>
+        <li>Open deze link op je iPhone:
+          <a class="link" href="https://testflight.apple.com/join/n3ADnE9t">Open de TestFlight-uitnodiging</a>
+        </li>
+        <li>Tik op <b>Accepteer</b> en daarna op <b>Installeer</b>.</li>
+        <li>Open Pamigo en maak een account aan.</li>
+      </ol>
+      <p class="note">Apple Watch? Open de Watch-app op je iPhone en installeer Pamigo onder <b>Beschikbare apps</b>. Nieuwe versies komen vanzelf via TestFlight.</p>
+    </section>
+
+    <section class="card">
+      <h2>Android</h2>
+      <ol>
+        <li>Word lid van de testgroep met het Google-account van je Play Store:
+          <a class="link" href="https://groups.google.com/g/pamigo-testers">Word lid van Pamigo testers</a>
+          Tik op <b>Lid worden van groep</b>. Je krijgt geen mails.</li>
+        <li>Open daarna op je telefoon:
+          <a class="link" href="https://play.google.com/apps/testing/com.bassiuz.pamigo">Word tester in Google Play</a>
+        </li>
+        <li>Tik op <b>Word tester</b> en daarna op <b>Downloaden via Google Play</b>.</li>
+        <li>Open Pamigo en maak een account aan.</li>
+      </ol>
+      <p class="note">Zie je "App niet gevonden"? Wacht een paar minuten na het lid worden, en check of je met hetzelfde Google-account bent ingelogd. Nieuwe versies komen via de Play Store.</p>
+    </section>
+  </div>
+
+  <footer>Meer uitleg over testen: <b>pamigo.nl/word-tester</b>. Iets werkt niet of je hebt een idee? Laat het Martin of Bas weten.</footer>
+</body>
+</html>

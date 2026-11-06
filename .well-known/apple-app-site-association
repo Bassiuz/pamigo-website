@@ -1,0 +1,13 @@
+{
+  "applinks": {
+    "details": [
+      {
+        "appIDs": ["NSCP3LMJ94.com.bassiuz.pamigo"],
+        "components": [
+          { "/": "/app/*", "?": { "join": "??????" }, "comment": "Competition invite" },
+          { "/": "/app/*", "?": { "gast": "??????" }, "comment": "Guest seat claim" }
+        ]
+      }
+    ]
+  }
+}
